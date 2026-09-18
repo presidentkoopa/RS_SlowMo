@@ -67,17 +67,16 @@ stepping entirely — nothing would ever turn it back on.
 
 ## Not built yet
 
-- **The colour drain: DROPPED, not pending** (owner, 2026-09-18). The original design had the world
-  desaturating as it slows, and the owner extended it to a black-and-white mode that keeps blood and
-  gore red. A postprocess shader can be loaded straight from a pk3 here (`postprocess scene { }` in
-  GLDEFS, uniforms driven from ZScript via `PPShader`, and this fork even projects per eye for VR) --
-  but a screen shader only ever sees the finished picture, so it cannot be told which pixels are
-  blood. It would have to keep colour by HUE, which also keeps every other red thing in the level.
-  Offered that trade, the owner said: "skip it. if you can't do it right i don't want you doing it."
-  DOING IT RIGHT would be an engine change -- an actor or particle FLAGGED to keep its colour, and
-  the renderer writing a mask the shader reads. That is general (any mod could keep a key, a marker,
-  an objective in colour) and it belongs to the build lane. It is not commissioned. Do not ship the
-  hue-guessing version as a stopgap.
+- **The black-and-white mode: IN DESIGN, engine first.** The original drain had the world
+  desaturating as it slows; the owner extended it to a black-and-white world that keeps blood and
+  gore red. A post-process shader loads straight from a pk3 here, but a screen shader only sees the
+  finished picture, so on its own it can only keep colour by HUE -- which keeps every other red
+  thing in the level too. I offered that as a cheap first version and the owner rejected it, and was
+  right to: an approximation is not wanted, and ENGINE WORK IS THE FIRST ANSWER TO SOMETHING WE
+  CANNOT DO, NOT THE LAST. So the proposal is `Engine docs/SCENE_MASK_PLAN.md` -- a per-pixel tag
+  written with the scene that any post-process shader can read, so blood is red because the blood
+  said so. With the build lane. My half (the shader, the key, the sliders, tagging our own blood and
+  gore) waits on it and is a couple of hours.
 - **A gesture.** The plan is for a VR gesture to press the same toggle. It will send the same
   network event; nothing here changes when it does.
 - **Triggering it off the fight** — a round passing close to your head dropping the world for a beat.
