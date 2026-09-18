@@ -1,0 +1,15 @@
+// ============================================================================
+// RS_SlowMo settings.
+//
+// SERVER or USER is not a style choice here. The depth and the ramps change what
+// EVERYONE's world does, so they belong to the host (server). The sound is a look
+// on your machine alone (user). See zscript/rsm/handler.zs.
+// ============================================================================
+
+// ---- the world's, the host's
+server float rsm_depth        = 0.25;   // how slow the world runs while it is on: 1 = normal, 0.25 = quarter speed, 0 = frozen
+server float rsm_ramp_in      = 0.15;   // seconds to slow down over (0 = snap)
+server float rsm_ramp_out     = 0.40;   // seconds to come back over
+
+// ---- yours, this machine's, presentation only
+user float rsm_sound_follow   = 1.0;    // how far world sounds drop in pitch with the world (0 = not at all)

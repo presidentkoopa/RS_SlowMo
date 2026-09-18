@@ -1,0 +1,6 @@
+// RS_SlowMo's handler is static: it holds the scale across maps and is the only
+// thing in the load order that calls LevelLocals.SetTimeScale.
+gameinfo
+{
+    AddEventHandlers = "RSM_Handler"
+}

@@ -1,0 +1,15 @@
+// ============================================================================
+// RS_SlowMo's key.
+//
+// The engine ships NO console command that writes the time scale, on purpose: a
+// command would be one machine's and the world is everyone's. `netevent` is the
+// replicated door, so the key sends one and every machine acts on the same tic.
+// ============================================================================
+
+alias slowmo     "netevent rsm_toggle"
+alias slowmo_on  "netevent rsm_on"
+alias slowmo_off "netevent rsm_off"
+alias slowmo_state "netevent rsm_state"
+
+addkeysection "Slow Motion" RSMSlowMo
+addmenukey "Slow motion on/off" slowmo

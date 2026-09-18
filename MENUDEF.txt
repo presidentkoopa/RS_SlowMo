@@ -1,0 +1,57 @@
+// ============================================================================
+// RS_SlowMo's page, under Options.
+//
+// The depth and the ramps are the HOST's (server cvars): in a co-op game the host
+// sets them and everyone's world obeys, because there is only one world. The sound
+// is yours alone. The key is bound under Customize Controls -> Slow Motion.
+// ============================================================================
+
+OptionValue "RSMDepths"
+{
+	0.50, "Half speed -- a nudge"
+	0.35, "A third -- you can still track a shot"
+	0.25, "Quarter (default) -- bullets crawl"
+	0.15, "A sixth -- Matrix lobby"
+	0.08, "A twelfth -- almost still"
+	0.00, "Frozen -- the world stops"
+}
+
+OptionValue "RSMRamps"
+{
+	0.00, "Snap"
+	0.08, "Fast"
+	0.15, "Normal"
+	0.30, "Slow"
+	0.60, "Very slow"
+}
+
+OptionMenu "RSMOptions"
+{
+	Title "SLOW MOTION"
+	StaticText "The world slows. You do not.", "Gold"
+	StaticText "Your head, your hands and your gun keep full speed; everything else -- monsters,", "DarkGray"
+	StaticText "their shots, your own bullets once they leave the barrel, doors, lifts -- runs at a", "DarkGray"
+	StaticText "fraction. Bind a key under Customize Controls, section Slow Motion.", "DarkGray"
+	StaticText ""
+
+	StaticText "THE WORLD (the host's, in a shared game)", "Gold"
+	Option "How slow", "rsm_depth", "RSMDepths"
+	Option "Slowing down takes", "rsm_ramp_in", "RSMRamps"
+	Option "Coming back takes", "rsm_ramp_out", "RSMRamps"
+	StaticText "Snapping straight to a fifth speed reads as a stutter rather than as time bending.", "DarkGray"
+	StaticText ""
+
+	StaticText "YOURS ALONE", "Gold"
+	Slider "World sounds drop in pitch", "rsm_sound_follow", 0.0, 1.0, 0.05, 2
+	StaticText "How far the room sags with the world. Your own gun, the menus and anything", "DarkGray"
+	StaticText "running in real time keep their pitch, so the shot stays sharp.", "DarkGray"
+	StaticText ""
+
+	StaticText "Ballistics has its own row for what the muzzle flash does in here:", "DarkGray"
+	StaticText "Options -> Ballistics & Effects -> Muzzle flash -> in slow motion.", "DarkGray"
+}
+
+AddOptionMenu "OptionsMenu"
+{
+	Submenu "Slow Motion", "RSMOptions"
+}
