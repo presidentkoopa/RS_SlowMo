@@ -36,12 +36,69 @@ class RSM_Handler : StaticEventHandler
 	private bool   m_on;
 	private double m_pitch;    // the world pitch last asked for, so we only ask on a change
 
+	// ANOTHER SLOW-MOTION SYSTEM IS LOADED. Decided once, in OnRegister, and never re-asked.
+	private bool m_rival;
+
+	// ========================================================================
+	// TWO SLOW-MOTION SYSTEMS COMPOUND, AND NEITHER CAN SEE THE OTHER.
+	//
+	// This cost the owner days. Loaded beside Bullet Time X the game did not
+	// break -- it CRAWLED, on death and on a level change, at a speed nothing
+	// could explain, and every check either project owned said its own half was
+	// correct. THEY BOTH WERE. That is why it hid.
+	//
+	// THE MECHANISMS ARE COMPLETELY DIFFERENT, which is the whole reason neither
+	// notices the other:
+	//   RS_SlowMo      asks the ENGINE for a world time scale (level.SetTimeScale).
+	//   Bullet Time X  never touches the clock at all -- it rewrites EVERY ACTOR'S
+	//                  Speed and tic counts, one actor at a time (BtActorInfo).
+	// So there is no shared field to collide on, no cvar to contend for, and
+	// nothing an audit of either package could ever have found. Ours holds a
+	// quarter scale while theirs slows every actor inside it, and a quarter of a
+	// quarter is a sixteenth -- or worse, and it reads as a hang.
+	//
+	// DETECTION IS BY CLASS NAME, REACHED BY STRING. Never a compile-time
+	// reference to a class that may not exist -- that is fatal AND global in
+	// ZScript, and it has broken this project before. Ask, and carry on if
+	// nothing answers.
+	//
+	// THE DEFAULT IS TO STAND DOWN, and that is deliberate rather than modest:
+	// Bullet Time X is the one the owner already had, this is the newcomer, and
+	// a newcomer that silently degrades the thing already working is worse than
+	// one that steps aside and says so. rsm_yield 0 takes priority instead.
+	// ========================================================================
+	static bool RivalSlowMoLoaded()
+	{
+		// Every one of these is a Bullet Time X class. Several, because a mod can
+		// be repacked or renamed and one missing name should not mean "all clear".
+		static const String rivals[] = { "BtActorInfo", "BtTimeFreeze", "BtItemData", "PostTickDummyController" };
+		for (int i = 0; i < 4; i++)
+			if (Object.FindClass(rivals[i]) != null) return true;
+		return false;
+	}
+
 	override void OnRegister()
 	{
 		m_scale = 1.0;
 		m_target = 1.0;
 		m_on = false;
 		m_pitch = 1.0;
+
+		m_rival = RivalSlowMoLoaded();
+		if (m_rival)
+		{
+			// SAY IT LOUDLY AND SAY WHAT WAS DONE ABOUT IT. The whole cost of this
+			// bug was that nothing anywhere mentioned the combination.
+			bool yield = CVar.FindCVar("rsm_yield") ? CVar.FindCVar("rsm_yield").GetBool() : true;
+			if (yield)
+				Console.Printf("\c[Red]RS_SlowMo: ANOTHER SLOW-MOTION MOD IS LOADED (Bullet Time X).\n"
+					.."\c[Grey]  Two slow-motion systems COMPOUND -- they use different mechanisms and cannot see\n"
+					.."  each other, and together the world can crawl to a near stop. RS_SlowMo has STOOD DOWN\n"
+					.."  and will not scale the clock. Set rsm_yield 0 to take priority instead, or unload one.");
+			else
+				Console.Printf("\c[Orange]RS_SlowMo: another slow-motion mod is loaded (Bullet Time X), and rsm_yield is 0,\n"
+					.."\c[Grey]  so RS_SlowMo is running anyway. THE TWO WILL COMPOUND. Unload one if the world crawls.");
+		}
 	}
 
 	// THE DOOR. Every machine runs this on the same tic with the same argument.
@@ -106,6 +163,12 @@ class RSM_Handler : StaticEventHandler
 				else m_scale += (want > m_scale) ? step : -step;
 			}
 		}
+		// [RIVAL] STOOD DOWN. Another slow-motion system is loaded and would compound with
+		// this one, so the clock is left alone entirely -- not held at 1.0, TOUCHED AT ALL,
+		// because writing 1.0 every tic is still this mod deciding the world's speed.
+		if (m_rival && (!CVar.FindCVar("rsm_yield") || CVar.FindCVar("rsm_yield").GetBool()))
+			return;
+
 		level.SetTimeScale(m_scale);
 
 		// THE SOUND OF IT, presentation only and this machine's alone. World sounds drop in pitch

@@ -13,3 +13,14 @@ server float rsm_ramp_out     = 0.40;   // seconds to come back over
 
 // ---- yours, this machine's, presentation only
 user float rsm_sound_follow   = 1.0;    // how far world sounds drop in pitch with the world (0 = not at all)
+
+// ---- YIELDING TO ANOTHER SLOW-MOTION MOD
+//
+// TWO SLOW-MOTION SYSTEMS COMPOUND AND NEITHER CAN SEE THE OTHER. RS_SlowMo scales the
+// ENGINE'S world clock; Bullet Time X never touches the clock and rewrites every ACTOR'S
+// speed and tics instead. Nothing collides, nothing warns, and together the world can crawl
+// to a near stop -- which reads as a hang on death or a level change, and cost days to find.
+//
+// ON (the default): if another slow-motion mod is detected, RS_SlowMo stands down and says so.
+// OFF: RS_SlowMo runs anyway and takes priority. THE TWO WILL STILL COMPOUND.
+server bool  rsm_yield        = true;
